@@ -34,6 +34,8 @@ Recuerda la importancia comentar con detalle el código.
 let frutaSeleccionada = ""
 // Variable global para el total de la compra
 let totalCompra = 0
+//Variable array para poder almacenar los items (frutas) que se compren, y poder seleccionarlos.
+let mostrarCompra = []
 
 
 //LISTAS (Objetos)
@@ -75,15 +77,26 @@ la pasamos a Float (numero) y le indicamos que muestre 2 decimales con .toFixed 
     let precio = precios[frutaSeleccionada]
 //Calculamos en una variable el precio total, que será la multiplicacion de la cantidad por el precio.
     let totalFruta = (cantidadDecimal * precio).toFixed(2)
+//Añadimos en la ultima posición del array mostrarCompra, las claves y valores de la fruta comprada
+    mostrarCompra.push({
+        nombre: frutaSeleccionada,
+        cantidad: cantidadDecimal,
+        precio: precio,
+        total: totalFruta
+    })
+
 //Creamos una variable que obtenga el elemento con id #carrito 
-//Y le cambiamos el html interno para que muestre el icono de la papelera y el mensaje de la operación con la fruta, su cantidad, precio y total
     let mensajeCarrito = document.getElementById('carrito')
-    mensajeCarrito.innerHTML += `<span class="borrar"><i class="fa-solid fa-trash-can fa-xs"></i></span> ${frutaSeleccionada} : ${cantidadDecimal} kg x ${precio}€/kg = ${totalFruta} € <br>`
-    // Sumar el totalFruta al totalCompra
+/*  Le cambiamos el html interno para que muestre un span asociado a un evento onclick que ejecute la funcion borrarFruta,
+    la cual se ejecutará sobre el índice del último elemento agregado al array mostrarCompra (length - 1).
+    Este span tambien contiene el icono de papelera (trash) para poder clicar y activar el evento. 
+    Por último se muestra el mensaje del resultado de las operaciones; con la fruta, su cantidad, precio y total  */
+    mensajeCarrito.innerHTML += `<span class="borrar" onclick="borrarFruta(${mostrarCompra.length - 1})"><i class="fa-solid fa-trash-can fa-xs"></i></span> ${frutaSeleccionada} : ${cantidadDecimal} kg x ${precio}€/kg = ${totalFruta} € <br>`
+    //Aqui se suma el totalFruta (pasado a numeros flotantes-con decimales- ya que .toFixed(2) devuelve un string) al totalCompra 
     totalCompra += parseFloat(totalFruta)
     // Actualizar el total en el carrito
     actualizarTotalCompra();
-
+    console.log(mostrarCompra)
 //Si la cantidad no es válida,se muestra una alerta y finaliza la función
     } else {
         alert('Por favor ingresa una cantidad válida');
@@ -101,7 +114,13 @@ function seleccionarUnidades() {
         let precio = unidades[frutaSeleccionada];
         let totalFruta = (cantidadDecimal * precio).toFixed(2);
         let mensajeCarrito = document.getElementById('carrito');
-        mensajeCarrito.innerHTML += `<span class="borrar"><i class="fa-solid fa-trash-can fa-xs"></i></span> ${frutaSeleccionada} : ${cantidadDecimal} ud x ${precio}€/ud = ${totalFruta} € <br>`;
+        mostrarCompra.push({
+            nombre: frutaSeleccionada,
+            cantidad: cantidadDecimal,
+            precio: precio,
+            total: totalFruta
+        })
+        mensajeCarrito.innerHTML += `<span onclick="borrarFruta(${mostrarCompra.length - 1})"class="borrar"><i class="fa-solid fa-trash-can fa-xs"></i></span> ${frutaSeleccionada} : ${cantidadDecimal} ud x ${precio}€/ud = ${totalFruta} € <br>`;
         totalCompra += parseFloat(totalFruta)
         actualizarTotalCompra()
     
@@ -114,12 +133,34 @@ function seleccionarUnidades() {
 function actualizarTotalCompra() {
     // Obtenemos el elemento con el id #preuFinal almacenado en la variable totalHTML
     let totalHTML = document.getElementById('preuFinal');
-    //Cambiamos el html para que muestre el total de la compra con 2 decimales
+    //Cambiamos el html para que muestre la variable totalCompra con 2 decimales.
     totalHTML.innerHTML = `${totalCompra.toFixed(2)} €`; 
 }
 
+//Elimina un ítem de la lista mostrarCompra usando el índice y actualiza el carrito y el total de la compra.
+function borrarFruta(indice) {
+    /* Restamos de totalCompra el valor de 'total' que corresponda al índice dentro del array mostrarCompra,
+    el cual indicamos antes en el span agregado por innerHTML de las funciones seleccionarFruta/seleccionarUnidades
+    */
+    totalCompra -= parseFloat(mostrarCompra[indice].total);
+    //Eliminamos 1 ítem desde el índice indicado en el array mostrarCompra
+    mostrarCompra.splice(indice, 1);
+    //Actualizamos carrito y total compra
+    actualizarCarrito();
+    actualizarTotalCompra();
+  }
 
-
+//Recorre los ítems de mostrarCompra y actualiza la visualización del carrito en la página, mostrando solo los ítems restantes.
+function actualizarCarrito() {
+    let mensajeCarrito = document.getElementById("carrito");
+    // Limpiamos el contenido actual del carrito
+    mensajeCarrito.innerHTML = ""; 
+  
+    // Mostramos de nuevo todos los ítems restantes
+    mostrarCompra.forEach((item, index) => {
+      mensajeCarrito.innerHTML += `<span class="borrar" onclick="borrarFruta(${index})"><i class="fa-solid fa-trash-can fa-xs"></i></span> ${item.nombre} : ${item.cantidad} x ${item.precio}€/kg = ${item.total} € <br>`;
+    });
+  }
 
 
 
@@ -201,10 +242,3 @@ golden.addEventListener('click', () => {
     frutaSeleccionada = 'golden'
     seleccionarFruta()
 })
-
-
-const borraFruta = document.querySelectorAll('.borrar')
-borraFruta.addEventListener('click', () => { 
-    totalCompra -= TotalFruta
-    actualizarTotalCompra()
-    })
