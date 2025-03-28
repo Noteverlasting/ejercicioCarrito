@@ -26,7 +26,23 @@ Recuerda la importancia comentar con detalle el código.
  Lo importante es el cálculo, no los estilos css
  */
 
+/*
+PASOS A LLEVAR A CABO
+1. Al ser las frutas strings, y los precios números,se puede declarar una variable "vacia" que almacene el valor de cada fruta y otra variable numerica que almacene el precio.
+2. Crear un array para poder almacenar los datos de las frutas compradas (un carrito)
+3. Definir en listas las frutas del html, diferenciando las que van por kg y por unidades con sus respectivos precios por kg o ud.
+4. Crear funciones que permitan: 
+  -que al seleccionar una fruta, se pregunte la cantidad
+  -que se calcule segun la cantidad y el precio, el importe de la fruta comprada y se agregue al array de compras con los datos que queremos mostrar: fruta, cantidad, precio y total.
+  -que en el <p id="carrito"> se muestre la operación con su resultado y tambien un icono de papelera que permita borrar la fruta y restar el importe borrado.
+  -que también se muestre en <span id="preuFinal"> el precio actualizado de todas las frutas compradas, tanto si se añaden como si se restan.
+5. Añadir eventListeners que al hacer click en la fruta deseada, activen las funciones.
 
+(*) A tener en cuenta; 
+    .los totales deben mostrar dos decimales para facilidad de lectura y calculo.
+    .si el valor introducido no es numero, debe tenerse en cuenta para no ejecutar mal las funciones, y se debe avisar al usuario del error.
+    
+*/
 
 //VARIABLES
 
@@ -94,7 +110,7 @@ la pasamos a Float (numero) y le indicamos que muestre 2 decimales con .toFixed 
     mensajeCarrito.innerHTML += `<span class="borrar" onclick="borrarFruta(${mostrarCompra.length - 1})"><i class="fa-solid fa-trash-can fa-xs"></i></span> ${frutaSeleccionada} : ${cantidadDecimal} kg x ${precio}€/kg = ${totalFruta} € <br>`
     //Aqui se suma el totalFruta (pasado a numeros flotantes-con decimales- ya que .toFixed(2) devuelve un string) al totalCompra 
     totalCompra += parseFloat(totalFruta)
-    // Actualizar el total en el carrito
+    //Llamamos a la funcion que actualizará el total en el carrito (declarada despues)
     actualizarTotalCompra();
     console.log(mostrarCompra)
 //Si la cantidad no es válida,se muestra una alerta y finaliza la función
@@ -150,13 +166,15 @@ function borrarFruta(indice) {
     actualizarTotalCompra();
   }
 
-//Recorre los ítems de mostrarCompra y actualiza la visualización del carrito en la página, mostrando solo los ítems restantes.
+//Esta funcion primero limpia el contenido del html del carrito y recorre los ítems e indices de mostrarCompra, para actualiza la visualización del carrito en la página, mostrando los ítems restantes.
 function actualizarCarrito() {
     let mensajeCarrito = document.getElementById("carrito");
     // Limpiamos el contenido actual del carrito
     mensajeCarrito.innerHTML = ""; 
   
-    // Mostramos de nuevo todos los ítems restantes
+    // Mostramos de nuevo todos los ítems restantes en el html borrado, recorriendo los datos que tenemos en el array mostrarCompra con dos parámetros.
+    //El primer parámetro será siempre el elemento del array (en este caso, el producto del carrito, que podría ser item).
+    //El segundo parámetro será siempre el índice del elemento dentro del array (en este caso, index).
     mostrarCompra.forEach((item, index) => {
       mensajeCarrito.innerHTML += `<span class="borrar" onclick="borrarFruta(${index})"><i class="fa-solid fa-trash-can fa-xs"></i></span> ${item.nombre} : ${item.cantidad} x ${item.precio}€/kg = ${item.total} € <br>`;
     });
