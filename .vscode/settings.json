@@ -1,3 +1,4 @@
 {
-    "blackbox.mcp.mode": "off"
+    "blackbox.mcp.mode": "off",
+    "liveServer.settings.port": 5502
 }

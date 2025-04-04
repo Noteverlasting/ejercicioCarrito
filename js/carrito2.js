@@ -81,26 +81,39 @@ const unidades = {
 
 //Creamos una función para poder repetirla ya que hay muchos items. No le declaramos un parámetro para poder variarlo con "frutaSeleccionada"
 function seleccionarFruta() {
-    let cantidad = prompt(`¿Cuántos kg de ${frutaSeleccionada} quieres?`);
+    //Primero declaramos cantidad como un prompt que pregunta cuantos kg de la variable frutaSeleccionada se quieren
+    let cantidad = prompt(`¿Cuántos kg de ${frutaSeleccionada} quieres?`)
+    //Si la cantidad es mayor que a 0 y es un numero,  indicamos que se ejecute el bloque de codigo con estas operaciones: 
     if (cantidad > 0 && !isNaN(cantidad)) {
-        let cantidadDecimal = parseFloat(cantidad).toFixed(2);
-        let precio = precios[frutaSeleccionada];
-        let totalFruta = (cantidadDecimal * precio).toFixed(2);
+/*Como la variable cantidad es un prompt, devuelve un string, así que para poder acortar los decimales, 
+la pasamos a Float (numero) y le indicamos que muestre 2 decimales con .toFixed */ 
+    let cantidadDecimal = parseFloat(cantidad).toFixed(2)
 
-        // Añadimos la fruta al array
-        mostrarCompra.push({
-            nombre: frutaSeleccionada,
-            cantidad: cantidadDecimal,
-            precio: precio,
-            total: totalFruta
-        });
+//Declaramos la variable precio que será el valor de frutaSeleccionada en la variable objeto precios
+    let precio = precios[frutaSeleccionada]
+//Calculamos en una variable el precio total, que será la multiplicacion de la cantidad por el precio.
+    let totalFruta = (cantidadDecimal * precio).toFixed(2)
+//Añadimos en la ultima posición del array mostrarCompra, las claves y valores de la fruta comprada
+    mostrarCompra.push({
+        nombre: frutaSeleccionada,
+        cantidad: cantidadDecimal,
+        precio: precio,
+        total: totalFruta
+    })
 
-        // Actualizamos el total de la compra
-        totalCompra += parseFloat(totalFruta);
-
-        // Llamamos a la función para actualizar el carrito
-        actualizarCarrito();
-        actualizarTotalCompra();
+//Creamos una variable que obtenga el elemento con id #carrito 
+    let mensajeCarrito = document.getElementById('carrito')
+/*  Le cambiamos el html interno para que muestre un span asociado a un evento onclick que ejecute la funcion borrarFruta,
+    la cual se ejecutará sobre el índice del último elemento agregado al array mostrarCompra (length - 1).
+    Este span tambien contiene el icono de papelera (trash) para poder clicar y activar el evento. 
+    Por último se muestra el mensaje del resultado de las operaciones; con la fruta, su cantidad, precio y total  */
+    mensajeCarrito.innerHTML += `<span class="borrar" onclick="borrarFruta(${mostrarCompra.length - 1})"><i class="fa-solid fa-trash-can fa-xs"></i></span> ${frutaSeleccionada} : ${cantidadDecimal} kg x ${precio}€/kg = ${totalFruta} € <br>`
+    //Aqui se suma el totalFruta (pasado a numeros flotantes-con decimales- ya que .toFixed(2) devuelve un string) al totalCompra 
+    totalCompra += parseFloat(totalFruta)
+    //Llamamos a la funcion que actualizará el total en el carrito (declarada despues)
+    actualizarTotalCompra();
+    console.log(mostrarCompra)
+//Si la cantidad no es válida,se muestra una alerta y finaliza la función
     } else {
         alert('Por favor ingresa una cantidad válida');
     }
@@ -116,16 +129,15 @@ function seleccionarUnidades() {
         let cantidadDecimal = parseFloat(cantidad).toFixed(2);
         let precio = unidades[frutaSeleccionada];
         let totalFruta = (cantidadDecimal * precio).toFixed(2);
-
+        let mensajeCarrito = document.getElementById('carrito');
         mostrarCompra.push({
             nombre: frutaSeleccionada,
             cantidad: cantidadDecimal,
             precio: precio,
             total: totalFruta
         })
-        
+        mensajeCarrito.innerHTML += `<span onclick="borrarFruta(${mostrarCompra.length - 1})"class="borrar"><i class="fa-solid fa-trash-can fa-xs"></i></span> ${frutaSeleccionada} : ${cantidadDecimal} ud x ${precio}€/ud = ${totalFruta} € <br>`;
         totalCompra += parseFloat(totalFruta)
-        actualizarCarrito()
         actualizarTotalCompra()
     
     } else {
@@ -155,82 +167,23 @@ function borrarFruta(indice) {
   }
 
 //Esta funcion primero limpia el contenido del html del carrito y recorre los ítems e indices de mostrarCompra, para actualiza la visualización del carrito en la página, mostrando los ítems restantes.
-// function actualizarCarrito() {
-//     let mensajeCarrito = document.getElementById("carrito");
-//     // Limpiamos el contenido actual del carrito
-//     mensajeCarrito.innerHTML = "<ul>"; 
-  
-//     // Mostramos de nuevo todos los ítems restantes en el html borrado, recorriendo los datos que tenemos en el array mostrarCompra con dos parámetros.
-//     //El primer parámetro será siempre el elemento del array (en este caso, el producto del carrito, que podría ser item).
-//     //El segundo parámetro será siempre el índice del elemento dentro del array (en este caso, index).
-//     mostrarCompra.forEach((item, index) => {
-//       mensajeCarrito.innerHTML += `<li> ${item.nombre} : ${item.cantidad} x ${item.precio}€/kg = ${item.total} € <span class="borrar" onclick="borrarFruta(${index})"><i class="fa-solid fa-trash-can fa-xs" aria-label="clica o pulsa enter para borrar" tabindex="0" aria-hidden="true" "clica o pulsa Enter para borrar" tabindex="0" aria-hidden="true" onkeydown="if(event.key === 'Enter') borrarFruta(${mostrarCompra.length - 1})" onkeydown="if(event.key === 'Enter') borrarFruta(${index})"></i></span></li>`;
-//     });
-
-//     mensajeCarrito.innerHTML += "</ul>";
-//   }
-  function actualizarCarrito() {
+function actualizarCarrito() {
     let mensajeCarrito = document.getElementById("carrito");
     // Limpiamos el contenido actual del carrito
-    mensajeCarrito.innerHTML = "<ul>";
-
-    // Recorremos el array `mostrarCompra` para generar el contenido del carrito
+    mensajeCarrito.innerHTML = ""; 
+  
+    // Mostramos de nuevo todos los ítems restantes en el html borrado, recorriendo los datos que tenemos en el array mostrarCompra con dos parámetros.
+    //El primer parámetro será siempre el elemento del array (en este caso, el producto del carrito, que podría ser item).
+    //El segundo parámetro será siempre el índice del elemento dentro del array (en este caso, index).
     mostrarCompra.forEach((item, index) => {
-        mensajeCarrito.innerHTML += `
-            <li>
-                ${item.nombre} : ${item.cantidad} x ${item.precio}€/kg = ${item.total} € 
-                <span class="borrar" onclick="borrarFruta(${index})">
-                    <i class="fa-solid fa-trash-can fa-xs" 
-                       aria-label="Clica o pulsa Enter para borrar ${item.nombre}" 
-                       tabindex="0" 
-                       onkeydown="if(event.key === 'Enter') borrarFruta(${index})">
-                    </i>
-                </span>
-            </li>`;
+      mensajeCarrito.innerHTML += `<span class="borrar" onclick="borrarFruta(${index})"><i class="fa-solid fa-trash-can fa-xs"></i></span> ${item.nombre} : ${item.cantidad} x ${item.precio}€/kg = ${item.total} € <br>`;
     });
+  }
 
-    mensajeCarrito.innerHTML += "</ul>";
-}
 
 
 //EJECUCIÓN DE LAS FUNCIONES
 
-//MODIFICACION ACCESIBILIDAD
-//EL CÓDIGO DE ABAJO (QUE ESTÁ COMENTADO), SE USARÍA SOLO PARA HACER CLICK EN CADA ELEMENTO,
-//CON ESTE CÓDIGO CONSIDERAMOS TANTO QUE SE PUEDA HACER CLICK COMO QUE SE PUEDA PULSAR LA TECLA ENTER PARA ACCIONAR EL EVENTO
-// Función para agregar eventos de teclado a un elemento
-function agregarEventosAccesibilidad(elemento, fruta, esPorUnidad = false) {
-    // Evento para clic con el ratón
-    elemento.addEventListener('click', () => {
-        frutaSeleccionada = fruta;
-        esPorUnidad ? seleccionarUnidades() : seleccionarFruta();
-    });
-
-    // Evento para teclado (Enter o Espacio)
-    elemento.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault(); // Evita el scroll al presionar Espacio
-            frutaSeleccionada = fruta;
-            esPorUnidad ? seleccionarUnidades() : seleccionarFruta();
-        }
-    });
-}
-
-// Agregar eventos a cada fruta
-agregarEventosAccesibilidad(document.getElementById('pomelo'), 'pomelo');
-agregarEventosAccesibilidad(document.getElementById('kiwi'), 'kiwi');
-agregarEventosAccesibilidad(document.getElementById('limon'), 'limon');
-agregarEventosAccesibilidad(document.getElementById('pinya'), 'pinya', true); // Por unidad
-agregarEventosAccesibilidad(document.getElementById('sandia'), 'sandia');
-agregarEventosAccesibilidad(document.getElementById('aguacate'), 'aguacate', true); // Por unidad
-agregarEventosAccesibilidad(document.getElementById('freson'), 'freson');
-agregarEventosAccesibilidad(document.getElementById('mandarina'), 'mandarina');
-agregarEventosAccesibilidad(document.getElementById('fuji'), 'fuji');
-agregarEventosAccesibilidad(document.getElementById('platano'), 'platano');
-agregarEventosAccesibilidad(document.getElementById('pera'), 'pera');
-agregarEventosAccesibilidad(document.getElementById('golden'), 'golden');
-
-/*
 //Creamos una constante para cada fruta, que obtenga el elemento con el id de la misma
 const pomelo = document.getElementById('pomelo')
 //Le agregamos un event listener el cual al hacer click ejecutará lo siguiente:
@@ -246,13 +199,6 @@ const kiwi = document.getElementById('kiwi')
 kiwi.addEventListener('click', () => {
   frutaSeleccionada = 'kiwi'
   seleccionarFruta()
-})
-kiwi.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter'){
-        frutaSeleccionada = 'kiwi'
-        seleccionarFruta()
-
-    }
 })
 
 const limon = document.getElementById('limon')
@@ -314,4 +260,3 @@ golden.addEventListener('click', () => {
     frutaSeleccionada = 'golden'
     seleccionarFruta()
 })
-    */
